@@ -1,5 +1,5 @@
 node{
-     git branch: 'master', url: 'git@github.com:khaledhawil/simple-java-app.git'
+     git branch: 'master', url: 'https://github.com/khaledhawil/simple-java-app.git'
      stage('build'){
           try{
               sh'echo "Build Stage"' 
@@ -19,12 +19,4 @@ node{
           }
      }
 
-     stage('deploy'){
-          if(env.BRANCH_NAME == "main"){
-               sh'echo "Deploy Stage"'
-          }
-          else{
-               sh'echo "Deploy Stage Skipped"'
-          }
-     }
 }
