@@ -1,37 +1,30 @@
-pipeline{
-    agent{
-        label 'aws-agent'
-    }
-    stages{
-        stage('build'){
-            steps{
-                script{
-                    sh 'docker build -t java-app .'
-                }
-            }
-        }
+node{
+     git branch: 'main', url: 'git@github.com:khaledhawil/simple-java-app.git'
+     stage('build'){
+          try{
+              sh'echo "Build Stage"' 
+          }
+          catch(Exception e){
+               sh'echo "Build Stage Failed"'
+              throw e
+          }
+     }
 
-        stage('push'){
-            steps{
-                script{
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'Password', usernameVariable: 'Username')]) {
-                    sh 'docker login --username $Username --password $Password'
-                    sh 'docker tag java-app $Username/java-app'
-                    sh 'docker push $Username/java-app'
-                    }
-                }
-            }
-        }
+     stage('test'){
+          if(env.BRANCH_NAME == "feat"){
+               sg'echo "Test Stage"'
+          }
+          else{
+               sh'echo "Test Stage Skipped"'
+          }
+     }
 
-        stage('deploy'){
-            steps{
-                script{
-                    withAWS(credentials: 'aws-cli', region: 'us-east-2') {
-                    sh 'aws eks update-kubeconfig --region us-east-2 --name eks'
-                    sh 'kubectl apply -f ./k8s/deployment.yaml'
-                    }
-                }
-            }
-        }
-    }
+     stage('deploy'){
+          if(env.BRANCH_NAME == "main"){
+               sh'echo "Deploy Stage"'
+          }
+          else{
+               sh'echo "Deploy Stage Skipped"'
+          }
+     }
 }
